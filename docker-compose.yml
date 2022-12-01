@@ -1,0 +1,44 @@
+version: "3.9"
+name: yfp
+services:
+  app:
+    build: .
+    container_name: yfp-app
+    ports: 
+      - 6048:6048
+    # depends_on:
+    #   - psql
+    networks:
+      - frontend
+      - backend
+  # psql:
+  #   image: postgres:15.1-alpine
+  #   # restart: always
+  #   container_name: yfp-db
+  #   ports:
+  #     - 6049:6049
+  #   environment:
+  #     PGDATA: /var/lib/postgresql/data/pgdata
+  #     PGPORT: 6049
+  #     POSTGRES_PASSWORD_FILE: /run/secrets/psql_password
+  #     POSTGRES_USER: hyperadmin
+  #     POSTGRES_DB: yfpdb
+  #   volumes:
+  #     - yfp-psql-data:/var/lib/postgresql/data/pgdata
+  #   networks:
+  #     - backend
+  #   secrets:
+  #     - psql_password
+
+secrets:
+  psql_password:
+    file: ./secrets/psql_password
+
+networks:
+  frontend:
+    name: yfp-frontend
+  backend:
+    name: yfp-backend
+
+volumes:
+  yfp-psql-data:
