@@ -11,9 +11,8 @@ def create_app(config_name='default'):
     config[config_name].init_app(app)
 
     db.init_app(app)
-    import flaskr.model
     with app.app_context():
-        db.reflect()
+        import flaskr.model
         db.create_all()
         g.db = db
 

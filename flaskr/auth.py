@@ -4,7 +4,7 @@ from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
 from werkzeug.security import check_password_hash, generate_password_hash
-from sqlalchemy.exc import DatabaseError
+from sqlalchemy.exc import IntegrityError
 
 from flaskr.app import db
 from flaskr.model import User
@@ -23,17 +23,17 @@ def register():
             error = 'Username is required.'
         elif not password:
             error = 'Password is required.'
+        
+        user = User.query.filter(User.username == username).first()
+        if user:
+            error = f"User {username} is already in database."
 
         if error is None:
-            try:
-                user = User(username=username, password=generate_password_hash(password))
-                db.session.add(user)
-                db.session.commit()
-            except DatabaseError:
-                error = f"User {username} is already in database."
-            else:
-                return redirect(url_for('auth.login'))
-        
+            user = User(username=username, password=generate_password_hash(password))
+            db.session.add(user)
+            db.session.commit()
+            return redirect(url_for('auth.login'))
+
         flash(error)
     
     return render_template('auth/register.html.j2')
@@ -44,7 +44,7 @@ def login():
         username = request.form['username']
         password = request.form['password']
         error = None
-        user = User.query.filter(user.username == username).first()
+        user = User.query.filter(User.username == username).first()
 
         if user is None:
             error = 'Incorrect username.'

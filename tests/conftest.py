@@ -7,9 +7,8 @@ import os
 
 import pytest
 from sqlalchemy import text
-from flask_sqlalchemy import SQLAlchemy
 
-from flaskr import create_app
+from flaskr.app import create_app, db
 
 
 with open(os.path.join(os.path.dirname(__file__), 'data.sql'), 'rb') as f:
@@ -19,12 +18,12 @@ with open(os.path.join(os.path.dirname(__file__), 'data.sql'), 'rb') as f:
 @pytest.fixture
 def app():
     app = create_app('testing')
-    db = SQLAlchemy()
 
     with app.app_context():
         db.init_app(app)
+        db.create_all()
         for statement in _data_sql.split(';')[:-1]:
-            db.session.execute(text(statement))
+           db.session.execute(text(statement))
         db.session.commit()
 
     yield app

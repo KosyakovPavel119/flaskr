@@ -31,7 +31,7 @@ def create():
         if error is not None:
             flash(error)
         else:
-            post = Post(g.user.id, title, body)
+            post = Post(user_id=g.user.id, title=title, body=body)
             db.session.add(post)
             db.session.commit()
             return redirect(url_for('blog.index'))
@@ -45,7 +45,7 @@ def get_post(id, check_author=True) -> Post:
     if post is None:
         abort(404, f"Post id {id} does not exist.")
 
-    if check_author and post.user == g.user:
+    if check_author and post.user != g.user:
         abort(403)
 
     return post
@@ -79,6 +79,6 @@ def update(id):
 @login_required
 def delete(id):
     post = get_post(id)
-    post.delete()
+    db.session.delete(post)
     db.session.commit()
     return redirect(url_for('blog.index'))
